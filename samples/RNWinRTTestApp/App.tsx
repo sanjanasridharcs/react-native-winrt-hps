@@ -157,6 +157,8 @@ function AsyncImage(props: AsyncImageProps) {
 
 const App = () => {
     updateJumpListAsync();
+    const SensorsApi = Windows.Devices.Sensors;
+    const sensor = SensorsApi.HumanPresenceSensor;
     // NOTE: The Id used is the hash of the string 'SampleProvider'. This Guid is 'eff1e128-4903-5093-096a-bdc29b38456f'
     const loggingChannel = new Windows.Foundation.Diagnostics.LoggingChannel("SampleProvider", null);
     const imageUriPromise = getPictureThumbnailAsync();
@@ -169,6 +171,14 @@ const App = () => {
                     contentInsetAdjustmentBehavior="automatic"
                     style={styles.scrollView}>
                     <Header />
+                    <View style={styles.body}>
+                        <View style={styles.sectionContainer}>
+                            <Text style={styles.sectionTitle}>Windows.Devices.Sensors Example</Text>
+                            <Text style={styles.sectionDescription}>
+                                sensor is {sensor.GetDefault()}
+                            </Text>
+                        </View>
+                    </View>
                     <View style={styles.body}>
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Windows.UI.StartScreen.JumpList Example</Text>

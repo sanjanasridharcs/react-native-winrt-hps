@@ -46,6 +46,7 @@
       -include Windows.Security.Cryptography.BinaryStringEncoding
       -include Windows.UI.Notifications
       -include Windows.Data.Xml.Dom
+      -include Windows.Devices.Sensors
     </RnWinRTParameters>
 
   </PropertyGroup>
