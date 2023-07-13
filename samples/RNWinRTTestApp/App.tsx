@@ -1,7 +1,8 @@
+/* eslint-disable prettier/prettier */
 // Copyright (c) Microsoft Corporation.
 // Licensed under the MIT License.
 
-import React from "react";
+import React, { useCallback } from "react";
 import {
     Image,
     SafeAreaView,
@@ -136,6 +137,8 @@ function AsyncImage(props: AsyncImageProps) {
     if (props.imageUriPromise && !imageUri) {
         props.imageUriPromise.then((result: string) => {
             setImageUri(result);
+        }).catch(error => {
+            console.log("error: " + error);
         });
     }
 
@@ -155,13 +158,67 @@ function AsyncImage(props: AsyncImageProps) {
     );
 }
 
+interface AsyncReadingProps {
+  readingPromise?: Promise<Windows.Devices.Sensors.HumanPresenceSensor>;
+}
+
+function AsyncReading() {
+    const SensorsApi = Windows.Devices.Sensors;
+    const HPSensor = SensorsApi.HumanPresenceSensor;
+
+    const [reading, setReading] = React.useState('not present');
+    const [sensor, setSensor] = React.useState(HPSensor.getDefault());
+
+    // const onReadingChanged = (event: Windows.Devices.Sensors.HumanPresenceSensorReadingChangedEventArgs) => {
+    //     setReading(event.reading.distanceInMillimeters? event.reading.distanceInMillimeters.toString() : 'not present');
+    // }
+
+    // if (sensor) {
+    //     sensor.addEventListener('readingchanged', onReadingChanged);
+    // }
+
+    React.useEffect(() => {
+        const updateSensor = async () => {
+            const temp = await HPSensor.getDefaultAsync();
+            setSensor(temp);
+            console.log("got sensor again");
+        };
+        updateSensor();
+        if (sensor) {
+            console.log('sensor not null');
+            const tempReading = sensor.getCurrentReading().distanceInMillimeters;
+            setReading(tempReading ? tempReading.toString() : 'not present');
+        }
+
+    }, [HPSensor, sensor]);
+
+    return (
+        <Text style={styles.sectionDescription}>
+            presence reading: {reading}
+        </Text>
+    );
+
+}
+
 const App = () => {
     updateJumpListAsync();
-    const SensorsApi = Windows.Devices.Sensors;
-    const sensor = SensorsApi.HumanPresenceSensor;
+    // const SensorsApi = Windows.Devices.Sensors;
+    // const HPSensor = SensorsApi.HumanPresenceSensor;
+
+    // const sensor2 = HPSensor.getDefault();
+    // const sensor = HPSensor.getDefault();
     // NOTE: The Id used is the hash of the string 'SampleProvider'. This Guid is 'eff1e128-4903-5093-096a-bdc29b38456f'
     const loggingChannel = new Windows.Foundation.Diagnostics.LoggingChannel("SampleProvider", null);
     const imageUriPromise = getPictureThumbnailAsync();
+
+    // let distance;
+    // try {
+    //     distance = sensor2.getCurrentReading().distanceInMillimeters;
+    // } catch (e) {
+    //     console.log("reading error: " + e);
+    // }
+
+    // console.log("dist 2: " + distance);
 
     return (
         <>
@@ -174,9 +231,7 @@ const App = () => {
                     <View style={styles.body}>
                         <View style={styles.sectionContainer}>
                             <Text style={styles.sectionTitle}>Windows.Devices.Sensors Example</Text>
-                            <Text style={styles.sectionDescription}>
-                                sensor is {sensor.GetDefault()}
-                            </Text>
+                            <AsyncReading />
                         </View>
                     </View>
                     <View style={styles.body}>
